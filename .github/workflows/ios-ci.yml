@@ -1,0 +1,42 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+
+      - name: Install dependencies (if using CocoaPods)
+        run: |
+          gem install cocoapods
+          pod install
+        if: ${{ exists('Podfile') }}
+
+      - name: Build app
+        run: |
+          xcodebuild clean build \
+            -scheme CIExampleApp \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 14,OS=latest' \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+
+      - name: Run tests
+        run: |
+          xcodebuild test \
+            -scheme CIExampleApp \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 14,OS=latest'
+
