@@ -21,9 +21,10 @@ jobs:
 
       - name: Install dependencies (if using CocoaPods)
         run: |
-          gem install cocoapods
-          pod install
-        if: ${{ exists('Podfile') }}
+          if [ -f "Podfile" ]; then
+            gem install cocoapods
+            pod install
+          fi
 
       - name: Build app
         run: |
